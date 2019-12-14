@@ -4,12 +4,19 @@ const User = models.user
 
 
 exports.index = (req, res) => {
+    console.log('todoss get')
     Todo.findAll({
         include: [{
             model: User,
             as: "createdBy"
         }]
-    }).then(todos=>res.send(todos))
+    })
+    .then(todos=>res.send(todos))
+    .catch(err => {
+        console.log('error dataaa')
+        res.status(402);
+        res.send('error');
+    })
 }
 
 
