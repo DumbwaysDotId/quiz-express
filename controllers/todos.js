@@ -1,56 +1,49 @@
-//import connection to db
-const connection = require('../db')
-
-
-//make hardcode Array
-const todos = [
-    {
-        id: 1,
-        title: "Walking with Lola Zeita",
-        isDone: true
-    },
-    {
-        id: 2,
-        title: "Sleeping with Lola Zeita",
-        isDone: false
-    },
-]
+const models = require('../models')
+const Todo = models.todo
+const User = models.user
 
 
 exports.index = (req, res) => {
-    connection.query('SELECT * FROM todos', (err, rows)=> {
-        if (err) throw err
-      
-        res.send(rows)
-    })    
+    Todo.findAll({
+        include: [{
+            model: User,
+            as: "createdBy"
+        }]
+    }).then(todos=>res.send(todos))
 }
 
 
 exports.show = (req, res) => {
-    connection.query(`SELECT * FROM todos WHERE id=${req.params.id}`, (err, rows)=> {
-        if (err) throw err
-      
-        res.send(rows[0])
-    })
+    Todo.findOne({id: req.params.id}).then(todo=> res.send(todo))
 }
 
 exports.store = (req, res) => {
-    const data = req.body
-    todos.push(data)
-    res.send(data)
+    Todo.create(req.body).then(todo=> {
+        res.send({
+            message: "success",
+            todo
+        })
+    })
 }
 
 exports.update = (req, res) => {
-    const id = req.params.id
-    const index = id - 1 
-    const data = req.body    
-    todos[index] = {...todos[index], ...data}
-    res.send(todos[index])
+    Todo.update(
+        req.body,
+        {where: {id: req.params.id}}
+    ).then(todo=> {
+        res.send({
+            message: "success",
+            todo
+        })
+    })
 }
 
+
 exports.delete = (req, res) => {
-    const id = req.params.id
-    const index = id - 1        
-    todos.splice(index, 1)
-    res.send(todos)
+    Todo.destroy({where: {id: req.params.id}}).then(todo=> {
+        res.send({
+            message: "success",
+            todo
+        })
+    })
 }
