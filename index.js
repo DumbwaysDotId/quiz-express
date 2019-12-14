@@ -12,6 +12,10 @@ const bodyParser = require('body-parser')
 
 //import controllers todos.js
 const TodosControllers = require('./controllers/todos')
+const AuthController = require('./controllers/auth')
+
+//import middleware
+const {authenticated} = require("./middleware")
 
 app.use(bodyParser.json())
 
@@ -20,12 +24,14 @@ app.use(bodyParser.json())
 
 app.group("/api/v1", (router) => {
 
+router.post("/login", AuthController.login)
+
 //Get list route simply send arr of obj todos on your user screen
 //Ngambil Array Diatas
 
 //router.get('/endpoint', controller.naming_func)
 
-router.get('/todos', TodosControllers.index)
+router.get('/todos', authenticated, TodosControllers.index)
 
 //GET detail route: send the todo obj, by received id request params
 //Ngambil Data Array nya lebih spesifik atau 1 data.
@@ -34,17 +40,17 @@ router.get('/todo/:id', TodosControllers.show)
 
 //POST route: receive json body request, from user input, then push to todos array
 //Masukan Data Lola
-router.post('/todo', TodosControllers.store)
+router.post('/todo', authenticated ,TodosControllers.store)
 
 
 //PATCH route: receive json body request, from user input, then push to todos array
 //by object id
 //Edit Data
-router.patch('/todo/:id', TodosControllers.update)
+router.patch('/todo/:id', authenticated, TodosControllers.update)
 
 
 //DELETE route: delete the todo obj, by received id request params
-router.delete('/todo/:id', TodosControllers.delete)
+router.delete('/todo/:id', authenticated, TodosControllers.delete)
 
 })
 
